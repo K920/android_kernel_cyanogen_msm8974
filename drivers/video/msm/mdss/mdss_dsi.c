@@ -26,6 +26,7 @@
 #include "mdss_panel.h"
 #include "mdss_dsi.h"
 #include "mdss_debug.h"
+#include "mdss_livedisplay.h"
 
 #ifdef CONFIG_FB_MSM_MDSS_LCD_EFFECT
 #include "mdss_lcd_effect.h"
@@ -791,6 +792,9 @@ static int mdss_dsi_unblank(struct mdss_panel_data *pdata)
 	mdss_lcd_effect_update(pdata->panel_info.lcd_effect,
 			LCDE_UPDATE_ALL);
 #endif
+
+	mdss_livedisplay_update(pdata->panel_info.livedisplay,
+			MODE_UPDATE_ALL);
 
 	pr_debug("%s-:\n", __func__);
 
