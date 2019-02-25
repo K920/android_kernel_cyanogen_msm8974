@@ -80,6 +80,7 @@ static const char * const subsys_states[] = {
 static const char * const restart_levels[] = {
 	[RESET_SOC] = "SYSTEM",
 	[RESET_SUBSYS_COUPLED] = "RELATED",
+	[RESET_IGNORE] = "IGNORE",
 };
 
 /**
@@ -779,7 +780,7 @@ int subsystem_restart_dev(struct subsys_device *dev)
 		panic("subsys-restart: Resetting the SoC - %s crashed.", name);
 		break;
 	default:
-		panic("subsys-restart: Unknown restart level!\n");
+		pr_err("subsys-restart: no action taken for %s\n", name);
 		break;
 	}
 	module_put(dev->owner);
