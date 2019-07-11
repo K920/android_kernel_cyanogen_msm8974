@@ -704,7 +704,7 @@ static int binder_update_page_range(struct binder_proc *proc, int allocate,
 		page = &proc->pages[(page_addr - proc->buffer) / PAGE_SIZE];
 
 		BUG_ON(*page);
-		*page = alloc_page(GFP_KERNEL | __GFP_HIGHMEM | __GFP_ZERO);
+		*page = alloc_page(GFP_HIGHUSER);
 		if (*page == NULL) {
 			binder_debug(BINDER_DEBUG_TOP_ERRORS,
 				     "%d: binder_alloc_buf failed for page at %pK\n",
@@ -2290,8 +2290,16 @@ static void binder_transaction(struct binder_proc *proc,
 	list_add_tail(&t->work.entry, target_list);
 	tcomplete->type = BINDER_WORK_TRANSACTION_COMPLETE;
 	list_add_tail(&tcomplete->entry, &thread->todo);
-	if (target_wait)
-		wake_up_interruptible(target_wait);
+	if (target_wait) {
+	    if (reply || !(t->flags & TF_ONE_WAY)) {
+		preempt_disable();
+		wake_up_interruptible_sync(target_wait);
+		sched_preempt_enable_no_resched();
+	    }
+	    else {
+		    wake_up_interruptible(target_wait);
+	    }
+	}
 	return;
 
 err_translate_failed:
